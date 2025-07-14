@@ -4,54 +4,45 @@ import type { App as AdminApp, ServiceAccount } from 'firebase-admin/app';
 import { getAuth as getAdminAuth, Auth as AdminAuth } from 'firebase-admin/auth';
 import { getFirestore as getAdminFirestore, Firestore as AdminFirestore } from 'firebase-admin/firestore';
 
-let adminApp: AdminApp | null = null;
-let adminAuth: AdminAuth | null = null;
-let adminDb: AdminFirestore | null = null;
-
-function initializeAdminApp() {
+// This function initializes the Firebase Admin SDK. It's designed to be run only once.
+function initializeAdmin() {
+  // If the app is already initialized, we don't need to do anything.
   if (admin.apps.length > 0) {
-    adminApp = admin.app();
-    return; // Already initialized
+    return admin.app();
   }
 
-  // Vercel handles multi-line environment variables, so we can pass the raw JSON.
+  // Get the service account JSON from the environment variable.
   const serviceAccountJson = process.env.FIREBASE_SERVICE_ACCOUNT_JSON;
+
   if (!serviceAccountJson) {
-    console.error("Firebase Admin initialization failed: FIREBASE_SERVICE_ACCOUNT_JSON is not set.");
-    return;
+    throw new Error('Firebase initialization failed: The FIREBASE_SERVICE_ACCOUNT_JSON environment variable is not set.');
   }
 
   try {
+    // Parse the JSON string into a ServiceAccount object.
     const serviceAccount: ServiceAccount = JSON.parse(serviceAccountJson);
-
-    adminApp = admin.initializeApp({
+    
+    // Initialize the Firebase Admin App.
+    return admin.initializeApp({
       credential: admin.credential.cert(serviceAccount),
     });
-    console.log("Firebase Admin SDK initialized successfully from raw JSON.");
   } catch (error: any) {
+    // This will catch errors if the JSON is malformed.
     console.error("CRITICAL: Firebase Admin initialization failed. Could not parse service account JSON.", error.message);
+    throw new Error("Firebase Admin initialization failed due to malformed service account JSON.");
   }
 }
 
-// Call initialization on module load.
-initializeAdminApp();
+// Initialize the app immediately when this module is loaded.
+// This ensures that it's ready for any function that needs it.
+const adminApp: AdminApp = initializeAdmin();
 
+// Export functions to get instances of Auth and Firestore.
+// These functions will now use the globally initialized adminApp.
 export function getAdminAuthInstance(): AdminAuth {
-  if (!adminApp) {
-    throw new Error("Firebase Admin SDK is not available. Check server logs for initialization errors.");
-  }
-  if (!adminAuth) {
-    adminAuth = getAdminAuth(adminApp);
-  }
-  return adminAuth;
+  return getAdminAuth(adminApp);
 }
 
 export function getAdminDb(): AdminFirestore {
-  if (!adminApp) {
-    throw new Error("Firebase Admin SDK is not available. Check server logs for initialization errors.");
-  }
-  if (!adminDb) {
-    adminDb = getAdminFirestore(adminApp);
-  }
-  return adminDb;
+  return getAdminFirestore(adminApp);
 }
