@@ -1,15 +1,19 @@
 import {genkit, Plugin} from 'genkit';
 import {googleAI, googleSearch} from '@genkit-ai/googleai';
 
-// IMPORTANT: The Google API key is now hardcoded for deployment simplicity.
-const GOOGLE_API_KEY = "AIzaSyCH4SB5xKV6gk5zgnW2BODzWbpm2_5qUdM";
+// The GOOGLE_API_KEY is now read from environment variables.
+const GOOGLE_API_KEY = process.env.GOOGLE_API_KEY;
+
+if (!GOOGLE_API_KEY) {
+  console.log('Missing GOOGLE_API_KEY environment variable.');
+}
 
 let plugins: Plugin<any>[] = [];
 
 // Conditionally enable googleSearch tool only in production (Vercel)
-if (process.env.NODE_ENV === 'production') {
+if (process.env.NODE_ENV === 'production' && GOOGLE_API_KEY) {
   plugins.push(googleAI({apiKey: GOOGLE_API_KEY, tools: [googleSearch]}));
-} else {
+} else if (GOOGLE_API_KEY) {
   // In development, just use the basic AI without the search tool.
   plugins.push(googleAI({apiKey: GOOGLE_API_KEY}));
 }
