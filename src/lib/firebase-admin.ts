@@ -9,7 +9,8 @@ let adminApp: AdminApp | null = null;
 let adminAuth: AdminAuth | null = null;
 let adminDb: AdminFirestore | null = null;
 
-// The service account key is now read from an environment variable.
+// The service account key is expected to be a Base64 encoded string.
+// This is a common practice for storing multi-line JSON keys in single-line environment variables.
 const SERVICE_ACCOUNT_BASE64 = process.env.FIREBASE_SERVICE_ACCOUNT_KEY_BASE64;
 
 function getServiceAccount(): ServiceAccount | null {
