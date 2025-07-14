@@ -48,7 +48,7 @@ export async function findUserById(uid: string): Promise<User | null> {
 export async function upsertUser(userData: Omit<User, 'password'> & { photoURL?: string }): Promise<UpsertResult> {
   const adminDb = getAdminDb();
    if (!adminDb) {
-    const errorMsg = "Server is not configured for user management. Missing FIREBASE_SERVICE_ACCOUNT_KEY.";
+    const errorMsg = "Server is not configured for user management. Missing or invalid FIREBASE_SERVICE_ACCOUNT_KEY_BASE64 in Vercel environment variables.";
     console.error(errorMsg);
     return { success: false, user: null, error: errorMsg };
   }
