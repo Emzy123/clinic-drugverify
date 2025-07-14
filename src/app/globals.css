@@ -1,0 +1,62 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  font-family: 'Inter', sans-serif;
+}
+
+@layer base {
+  :root {
+    --background: 35 56% 95%; /* Light Beige */
+    --foreground: 224 71% 4%;
+    --card: 210 40% 98%;
+    --card-foreground: 224 71% 4%;
+    --popover: 210 40% 98%;
+    --popover-foreground: 224 71% 4%;
+    --primary: 28 66% 43%; /* CUSTECH Bronze/Brown */
+    --primary-foreground: 210 40% 98%;
+    --secondary: 210 40% 91.4%;
+    --secondary-foreground: 224 71% 4%;
+    --muted: 210 40% 91.4%;
+    --muted-foreground: 215 20% 65%;
+    --accent: 206 90% 60%; /* CUSTECH Blue */
+    --accent-foreground: 210 40% 98%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 210 40% 89.8%;
+    --input: 210 40% 89.8%;
+    --ring: 28 66% 43%;
+    --radius: 0.5rem;
+  }
+  .dark {
+    --background: 224 71% 4%;
+    --foreground: 210 40% 98%;
+    --card: 224 71% 4%;
+    --card-foreground: 210 40% 98%;
+    --popover: 224 71% 4%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 28 66% 50%;
+    --primary-foreground: 210 40% 98%;
+    --secondary: 215 20% 25%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 215 20% 25%;
+    --muted-foreground: 215 20% 75%;
+    --accent: 206 90% 55%;
+    --accent-foreground: 210 40% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 215 20% 25%;
+    --input: 215 20% 25%;
+    --ring: 28 66% 50%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
