@@ -45,7 +45,7 @@ export async function getScanHistory(userId?: string): Promise<Scan[]> {
  * @param newScan The scan data to add. It should not include an 'id' or 'timestamp'.
  * @returns A promise that resolves when the operation is complete.
  */
-export async function addScanToHistory(newScan: Omit<Scan, 'id' | 'timestamp'>): Promise<void> {
+export async function addScanToHistory(newScan: Omit<Scan, 'id' | 'timestamp' | 'userId'>): Promise<void> {
   const db = getDb();
   try {
     const scanWithMetadata = {

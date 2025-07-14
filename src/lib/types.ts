@@ -1,6 +1,6 @@
 export interface Scan {
   id: string;
-  userId: string;
+  userId?: string; // Made optional for now, can be removed later
   barcode: string;
   drugName: string | null;
   manufacturer: string | null;

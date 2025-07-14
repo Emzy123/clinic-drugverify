@@ -2,7 +2,6 @@ import type {Metadata} from 'next';
 import './globals.css';
 import { Toaster } from "@/components/ui/toaster";
 import { Logo } from '@/components/logo';
-import { UserNav } from '@/components/user-nav';
 import Link from 'next/link';
 
 export const metadata: Metadata = {
@@ -31,7 +30,7 @@ export default function RootLayout({
                   <span className="text-lg">CUSTECH DrugVerify</span>
                 </Link>
                 <div className="flex flex-1 items-center justify-end space-x-4">
-                  <UserNav />
+                  {/* UserNav removed */}
                 </div>
               </div>
             </header>

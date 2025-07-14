@@ -7,15 +7,8 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { ScanLine, CheckCircle2, AlertTriangle, HelpCircle, MessageSquare, Loader2 } from 'lucide-react';
 import { getScanHistory } from '@/services/scan-history';
-import type { Scan, User } from '@/lib/types';
+import type { Scan } from '@/lib/types';
 import { format } from 'date-fns';
-
-const MOCK_USER: User = {
-  id: 'mock-user-id',
-  fullname: 'CUSTECH Staff (Test)',
-  email: 'test@custech.edu.ng',
-  photoURL: `https://i.pravatar.cc/150?u=custech-staff`,
-};
 
 const statusIcons: { [key in Scan['status']]: React.ReactNode } = {
   Verified: <CheckCircle2 className="h-5 w-5 text-green-500" />,
@@ -34,26 +27,12 @@ export default function DashboardPage() {
   const [recentScans, setRecentScans] = useState<Scan[]>([]);
   const [totalScans, setTotalScans] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
-  const [currentUser] = useState<User | null>(MOCK_USER);
 
   useEffect(() => {
-    // This code runs only on the client, after hydration
-    if (!currentUser) return;
-    
-    const storedUser = JSON.stringify(currentUser);
-    if (storedUser) {
-      sessionStorage.setItem('user', storedUser);
-    }
-  }, [currentUser]);
-
-  useEffect(() => {
-    if (!currentUser) return;
-
     const fetchHistory = async () => {
       setIsLoading(true);
       try {
-        // Fetch history for the current user
-        const history = await getScanHistory(currentUser.id);
+        const history = await getScanHistory();
         setRecentScans(history.slice(0, 3));
         setTotalScans(history.length);
       } catch (error) {
@@ -65,13 +44,13 @@ export default function DashboardPage() {
       }
     };
     fetchHistory();
-  }, [currentUser]);
+  }, []);
 
   return (
     <div className="container py-8">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Welcome, {currentUser?.fullname || 'CUSTECH Staff'}</h1>
+          <h1 className="text-3xl font-bold tracking-tight">Welcome to CUSTECH DrugVerify</h1>
           <p className="text-muted-foreground">Ready to verify some drugs? Let&apos;s get started.</p>
         </div>
         <div className="flex items-center gap-4">
@@ -93,7 +72,7 @@ export default function DashboardPage() {
       <Card>
         <CardHeader>
           <CardTitle>Recent Scans</CardTitle>
-          <CardDescription>Here are the latest drugs you&apos;ve scanned.</CardDescription>
+          <CardDescription>Here are the latest drugs that have been scanned.</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
@@ -122,7 +101,7 @@ export default function DashboardPage() {
               ))
             ) : (
               <div className="text-center py-8 text-muted-foreground">
-                <p>You haven&apos;t scanned any drugs yet.</p>
+                <p>No drugs have been scanned yet.</p>
               </div>
             )}
           </div>

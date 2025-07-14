@@ -10,7 +10,7 @@ import { FlaskConical, ScanLine, AlertCircle, Info, Bot, BrainCircuit, CheckCirc
 import type { VerifyDrugOutput } from '@/ai/flows/verify-drug-flow';
 import { verifyDrugWithAi } from '@/ai/flows/verify-drug-flow';
 import { addScanToHistory } from '@/services/scan-history';
-import type { Scan, User } from '@/lib/types';
+import type { Scan } from '@/lib/types';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 
 export function ResultsContent() {
@@ -25,22 +25,8 @@ export function ResultsContent() {
 
   const [analysis, setAnalysis] = useState<VerifyDrugOutput | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [currentUser, setCurrentUser] = useState<User | null>(null);
 
   useEffect(() => {
-    const userStr = sessionStorage.getItem('user');
-    if (userStr) {
-        setCurrentUser(JSON.parse(userStr));
-    } else {
-        router.replace('/');
-    }
-  }, [router]);
-
-  useEffect(() => {
-    if (!currentUser) {
-        return;
-    }
-
     if (!drugName && !ndc && !gtin && !nafdacNumber) {
       router.replace('/dashboard/scan');
       return;
@@ -67,8 +53,7 @@ export function ResultsContent() {
           description: 'Could not perform drug verification. The AI models may be temporarily unavailable.',
         });
       } finally {
-         const newScan: Omit<Scan, 'id' | 'timestamp'> = {
-            userId: currentUser.id,
+         const newScan: Omit<Scan, 'id' | 'timestamp' | 'userId'> = {
             barcode: ndc || gtin || nafdacNumber || 'N/A',
             drugName: result?.drugName || drugName || 'N/A',
             manufacturer: result?.manufacturer || 'N/A',
@@ -82,7 +67,7 @@ export function ResultsContent() {
     };
 
     runVerification();
-  }, [drugName, ndc, gtin, nafdacNumber, currentUser, router, toast]);
+  }, [drugName, ndc, gtin, nafdacNumber, router, toast]);
 
   if (isLoading) {
     return (
