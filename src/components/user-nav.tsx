@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { CircleUser, Home, LogOut, Search, MessageSquare, History } from 'lucide-react';
+import { Home, Search, MessageSquare, History } from 'lucide-react';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
@@ -17,23 +17,22 @@ import {
 } from '@/components/ui/dropdown-menu';
 import type { User } from '@/lib/types';
 
+// A mock user to use when login is bypassed
+const MOCK_USER: User = {
+  id: 'mock-user-id',
+  fullname: 'CUSTECH Staff (Test)',
+  email: 'test@custech.edu.ng',
+  photoURL: `https://i.pravatar.cc/150?u=custech-staff`,
+};
+
 export function UserNav() {
   const router = useRouter();
   const [user, setUser] = useState<User | null>(null);
 
   useEffect(() => {
-    // This code runs only on the client, after hydration
-    const storedUser = sessionStorage.getItem('user');
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
-    }
+    // We'll use a mock user to bypass login for testing
+    setUser(MOCK_USER);
   }, []);
-
-  const handleLogout = () => {
-    // Clear session storage on logout
-    sessionStorage.removeItem('user');
-    router.push('/');
-  };
 
   const displayName = user?.fullname || 'CUSTECH Staff';
   const displayEmail = user?.email || 'staff@custech.edu.ng';
@@ -63,7 +62,7 @@ export function UserNav() {
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuItem asChild>
-          <Link href="/dashboard">
+          <Link href="/">
             <Home className="mr-2 h-4 w-4" />
             <span>Dashboard</span>
           </Link>
@@ -87,9 +86,8 @@ export function UserNav() {
           </Link>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={handleLogout}>
-          <LogOut className="mr-2 h-4 w-4" />
-          <span>Log out</span>
+        <DropdownMenuItem disabled>
+          Log out (disabled for testing)
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
