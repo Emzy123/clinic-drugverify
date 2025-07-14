@@ -77,8 +77,14 @@ export async function upsertUser(userData: Omit<User, 'password'> & { photoURL?:
       return { success: true, user: updatedUser };
     }
   } catch (error: any) {
-    const errorMsg = `Failed to upsert user ${userData.id} in Firestore.`;
-    console.error(errorMsg, 'Original Error:', error.message, 'Stack:', error.stack);
-    return { success: false, user: null, error: "A server error occurred while creating your user profile. Please try again later." };
+    // Log the specific Firebase/GCP error to the Vercel server logs
+    console.error('CRITICAL: upsertUser failed. Original error:', error);
+    
+    // Return a generic error to the user
+    return { 
+      success: false, 
+      user: null, 
+      error: "A server error occurred while creating your user profile. Please try again later." 
+    };
   }
 }
