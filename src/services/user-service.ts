@@ -84,7 +84,7 @@ export async function upsertUser(userData: Omit<User, 'password'> & { photoURL?:
     return { 
       success: false, 
       user: null, 
-      error: "A server error occurred while creating your user profile. Please try again later." 
+      error: "A server error occurred while creating your user profile. Please check that FIREBASE_SERVICE_ACCOUNT_JSON is set correctly in Vercel and try again." 
     };
   }
 }

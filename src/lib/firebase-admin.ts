@@ -11,25 +11,25 @@ let adminDb: AdminFirestore | null = null;
 function initializeAdminApp() {
   if (admin.apps.length > 0) {
     adminApp = admin.app();
-  } else {
-    const serviceAccountBase64 = process.env.FIREBASE_SERVICE_ACCOUNT_KEY_BASE64;
-    if (!serviceAccountBase64) {
-      console.error("Firebase Admin initialization failed: FIREBASE_SERVICE_ACCOUNT_KEY_BASE64 is not set.");
-      return; 
-    }
-    try {
-      // This is a common pattern for Vercel/serverless environments.
-      // The service account JSON is stored as a Base64 encoded string in an environment variable.
-      const serviceAccountJson = Buffer.from(serviceAccountBase64, 'base64').toString('utf-8');
-      const serviceAccount: ServiceAccount = JSON.parse(serviceAccountJson);
+    return; // Already initialized
+  }
 
-      adminApp = admin.initializeApp({
-        credential: admin.credential.cert(serviceAccount),
-      });
-      console.log("Firebase Admin SDK initialized successfully.");
-    } catch (error: any) {
-      console.error("CRITICAL: Firebase Admin initialization failed when parsing service account.", error.message);
-    }
+  // Vercel handles multi-line environment variables, so we can pass the raw JSON.
+  const serviceAccountJson = process.env.FIREBASE_SERVICE_ACCOUNT_JSON;
+  if (!serviceAccountJson) {
+    console.error("Firebase Admin initialization failed: FIREBASE_SERVICE_ACCOUNT_JSON is not set.");
+    return;
+  }
+
+  try {
+    const serviceAccount: ServiceAccount = JSON.parse(serviceAccountJson);
+
+    adminApp = admin.initializeApp({
+      credential: admin.credential.cert(serviceAccount),
+    });
+    console.log("Firebase Admin SDK initialized successfully from raw JSON.");
+  } catch (error: any) {
+    console.error("CRITICAL: Firebase Admin initialization failed. Could not parse service account JSON.", error.message);
   }
 }
 
@@ -38,8 +38,7 @@ initializeAdminApp();
 
 export function getAdminAuthInstance(): AdminAuth {
   if (!adminApp) {
-      // This means the initial attempt failed.
-      throw new Error("Firebase Admin SDK is not available. Check server logs for initialization errors.");
+    throw new Error("Firebase Admin SDK is not available. Check server logs for initialization errors.");
   }
   if (!adminAuth) {
     adminAuth = getAdminAuth(adminApp);
@@ -48,9 +47,8 @@ export function getAdminAuthInstance(): AdminAuth {
 }
 
 export function getAdminDb(): AdminFirestore {
-   if (!adminApp) {
-      // This means the initial attempt failed.
-      throw new Error("Firebase Admin SDK is not available. Check server logs for initialization errors.");
+  if (!adminApp) {
+    throw new Error("Firebase Admin SDK is not available. Check server logs for initialization errors.");
   }
   if (!adminDb) {
     adminDb = getAdminFirestore(adminApp);
