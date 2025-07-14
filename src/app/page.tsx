@@ -67,8 +67,8 @@ export default function LoginPage() {
         if (!appUserResult.success) {
             toast({
               variant: 'destructive',
-              title: 'Server Configuration Error',
-              description: appUserResult.error || 'Could not save user data to the server. Please contact support.',
+              title: 'Login Error',
+              description: appUserResult.error || 'Could not save user data after sign-in. Please contact support.',
             });
             // Log out the user to prevent being in a weird state
             await auth.signOut();
@@ -93,7 +93,7 @@ export default function LoginPage() {
       if (error.code === 'auth/popup-closed-by-user') {
         description = 'The sign-in window was closed before completing. Please try again.';
       } else if (error.code === 'auth/unauthorized-domain') {
-        description = 'This app\'s domain is not authorized for login. Please contact the administrator.'
+        description = 'This app\'s domain (clinic-drugverify.vercel.app) is not authorized for login. You must add it in the Firebase console.'
       }
        toast({
           variant: 'destructive',
