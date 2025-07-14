@@ -16,13 +16,8 @@ interface UpsertResult {
  * @returns The user object if found, otherwise null.
  */
 export async function findUserById(uid: string): Promise<User | null> {
-  const adminDb = getAdminDb();
-  if (!adminDb) {
-    console.error('Firebase Admin DB is not initialized. Cannot find user.');
-    return null;
-  }
-
   try {
+    const adminDb = getAdminDb();
     const userDocRef = adminDb.collection('users').doc(uid);
     const userDoc = await userDocRef.get();
 
@@ -33,8 +28,8 @@ export async function findUserById(uid: string): Promise<User | null> {
 
     const userData = userDoc.data();
     return { id: userDoc.id, ...userData } as User;
-  } catch(error) {
-    console.error('Error finding user by ID with Admin SDK:', error);
+  } catch(error: any) {
+    console.error(`Error finding user by ID (${uid}) with Admin SDK:`, error.message);
     throw new Error('Could not query the database.');
   }
 }
@@ -46,16 +41,10 @@ export async function findUserById(uid: string): Promise<User | null> {
  * @returns An object indicating success or failure, with the user object or an error message.
  */
 export async function upsertUser(userData: Omit<User, 'password'> & { photoURL?: string }): Promise<UpsertResult> {
-  const adminDb = getAdminDb();
-   if (!adminDb) {
-    const errorMsg = "Server is not configured for user management. Missing or invalid FIREBASE_SERVICE_ACCOUNT_KEY_BASE64 in Vercel environment variables.";
-    console.error(errorMsg);
-    return { success: false, user: null, error: errorMsg };
-  }
-
-  const userRef = adminDb.collection('users').doc(userData.id);
-
   try {
+    const adminDb = getAdminDb();
+    const userRef = adminDb.collection('users').doc(userData.id);
+
     const doc = await userRef.get();
 
     if (!doc.exists) {
@@ -70,6 +59,7 @@ export async function upsertUser(userData: Omit<User, 'password'> & { photoURL?:
         ...newUser,
         createdAt: new Date().toISOString(),
       });
+      console.log(`Successfully created new user: ${newUser.id}`);
       return { success: true, user: newUser };
     } else {
       // User exists, update their info if necessary (e.g., photoURL change)
@@ -83,10 +73,12 @@ export async function upsertUser(userData: Omit<User, 'password'> & { photoURL?:
         fullname: updatedUser.fullname,
         photoURL: updatedUser.photoURL,
       });
+      console.log(`Successfully updated existing user: ${updatedUser.id}`);
       return { success: true, user: updatedUser };
     }
-  } catch (error) {
-    console.error("Error upserting user in Firestore:", error);
-    return { success: false, user: null, error: "Could not create or update user record in the database." };
+  } catch (error: any) {
+    const errorMsg = `Failed to upsert user ${userData.id} in Firestore.`;
+    console.error(errorMsg, 'Original Error:', error.message, 'Stack:', error.stack);
+    return { success: false, user: null, error: "A server error occurred while creating your user profile. Please try again later." };
   }
 }
